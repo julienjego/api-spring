@@ -1,18 +1,14 @@
 package fr.afpajulien.api.controller;
 
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
 import fr.afpajulien.api.model.Employee;
 import fr.afpajulien.api.service.EmployeeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 public class EmployeeController {
@@ -22,34 +18,33 @@ public class EmployeeController {
 
     /**
      * Create - Add a new employee
-     * 
+     *
      * @param employee An object employee
      * @return The employee object saved
      */
     @PostMapping("/employee")
-    public Employee createEmployee(@RequestBody Employee employee) {
-        return employeeService.saveEmployee(employee);
+    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
+
+        return new ResponseEntity<>(employeeService.saveEmployee(employee), CREATED);
     }
 
     /**
      * Read - Get one employee
-     * 
+     *
      * @param id The id of the employee
      * @return An Employee object full filled
      */
     @GetMapping("/employee/{id}")
-    public Employee getEmployee(@PathVariable("id") final Long id) {
-        Optional<Employee> employee = employeeService.getEmployee(id);
-        if (employee.isPresent()) {
-            return employee.get();
-        } else {
-            return null;
-        }
+    public ResponseEntity<Employee> getEmployee(@PathVariable("id") final Long id) {
+
+        final Employee data = employeeService.getEmployee(id).orElseGet(() -> null);
+
+        return new ResponseEntity<>(data, data != null ? OK : NOT_FOUND);
     }
 
     /**
      * Read - Get all employees
-     * 
+     *
      * @return - An Iterable object of Employee full filled
      */
     @GetMapping("/employees")
@@ -59,7 +54,7 @@ public class EmployeeController {
 
     /**
      * Update - Update an existing employee
-     * 
+     *
      * @param id       - The id of the employee to update
      * @param employee - The employee object updated
      * @return
@@ -95,7 +90,7 @@ public class EmployeeController {
 
     /**
      * Delete - Delete an employee
-     * 
+     *
      * @param id - The id of the employee to delete
      */
     @DeleteMapping("/employee/{id}")
